@@ -17,9 +17,26 @@ This is a project started to learn electron (and a bit more about encryption.)
 - **Portable data folder**  
   Copy your user data folder (containing the encrypted database and salt) to another computer and open with the same passphrase.
 
+## How encryption works:
 
+- On first launch a 16‑byte random salt is created and stored in your user‑data folder.
+- Each startup, you enter your passphrase; the app runs PBKDF2 once to generate a 256‑bit key.
+- Note titles and content are encrypted with AES‑256‑GCM and stored in a local SQLite database.
+- Without the correct passphrase and salt, the database contents are unreadable.
 
-Shield: [![CC BY-NC-SA 4.0][cc-by-nc-sa-shield]][cc-by-nc-sa]
+## Portability:
+– The encrypted SQLite file (paperback.db) and the salt live in your OS’s user‑data directory.
+– Copy that entire folder to a new computer, install Paperback there, and enter the same passphrase to unlock all your notes.
+
+## Installation:
+
+1. Clone the repository.
+
+2. Run `npm install`.
+
+3. In development use `npm run start`.
+
+4. For a production build use `npm run build` and then `npm run dist` to package an installer.
 
 This work is licensed under a
 [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License][cc-by-nc-sa].
