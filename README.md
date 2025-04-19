@@ -3,6 +3,8 @@
 A simple, desktop note‑taking app with encryption. All notebooks and notes are stored locally and encrypted with a passphrase you supply on startup.
 This is a project started to learn electron (and a bit more about encryption.)
 
+![Filler Screenshot](Filler_Screenshot.png)
+
 ## Features
 
 - **Organization**  
@@ -37,6 +39,16 @@ This is a project started to learn electron (and a bit more about encryption.)
 3. In development use `npm run start`.
 
 4. For a production build use `npm run build` and then `npm run dist` to package an installer.
+
+## How to Use
+
+- Upon first using the app, you'll be prompted with a request for a passphrase
+- This will be the ONLY passphrase that works! Don't forget it!
+![Passphrase Screenshot](Passphrase_Screenshot.png)
+- Once entered, you'll be able to add notebooks and notes as you like! 
+- Try creating a notebook!
+![Notebook Screenshot](Passphrase_Screenshot.png)
+- Just remember that you'll be prompted with entering the passphrase every time you start the app!
 
 This work is licensed under a
 [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License][cc-by-nc-sa].
