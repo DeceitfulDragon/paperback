@@ -44,11 +44,21 @@ This is a project started to learn electron (and a bit more about encryption.)
 
 - Upon first using the app, you'll be prompted with a request for a passphrase
 - This will be the ONLY passphrase that works! Don't forget it!
+
 ![Passphrase Screenshot](Passphrase_Screenshot.png)
+
 - Once entered, you'll be able to add notebooks and notes as you like! 
 - Try creating a notebook!
-![Notebook Screenshot](Passphrase_Screenshot.png)
+
+![Notebook Screenshot](Notebook_Screenshot.png)
+
 - Just remember that you'll be prompted with entering the passphrase every time you start the app!
+
+## Tech Stack
+- Vue.js 3 & Tailwind CSS: Frontend
+- Electron.js: Backend
+- Better-sqlite3: Database
+- Vuedraggable: For dragging/moving notes & notebooks
 
 This work is licensed under a
 [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License][cc-by-nc-sa].
