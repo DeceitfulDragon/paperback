@@ -25,8 +25,8 @@ This is a project started to learn electron (and a bit more about encryption.)
 - Without the correct passphrase and salt, the database contents are unreadable.
 
 ## Portability:
-– The encrypted SQLite file (paperback.db) and the salt live in your OS’s user‑data directory.
-– Copy that entire folder to a new computer, install Paperback there, and enter the same passphrase to unlock all your notes.
+- The encrypted SQLite file (paperback.db) and the salt live in your OS’s user‑data directory.
+- Copy that entire folder to a new computer, install Paperback there, and enter the same passphrase to unlock all your notes.
 
 ## Installation:
 
