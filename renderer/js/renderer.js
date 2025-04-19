@@ -5,6 +5,7 @@ createApp({
   components: { draggable },
   data() {
     return {
+      isUnlocked: false,
       notebooks: [], // { id, name, order_index, notes:[], expanded, showNewNote, newNote }
       selectedNotebook: null, // the notebook object
       selectedNote: null, // the note object
@@ -24,20 +25,30 @@ createApp({
   methods: {
     // Called when user clicks unlock in passphrase modal
     async unlockApp() {
-      if (!this.passphrase) {
-        alert("Please enter a passphrase.");
-        return;
+      if (!this.passphrase.trim()) {
+        return alert("Please enter a passphrase.");
       }
+
+      // Attempt to derive the key
       const { success, message } = await window.api.setPassphrase(
         this.passphrase
       );
       if (!success) {
-        alert(`Bad passphrase: ${message}`);
+        alert(`Passphrase rejected: ${message}`);
         this.passphrase = "";
         return;
       }
-      this.showPassphraseModal = false;
-      await this.loadNotebooks();
+
+      // Verify by loading notebooks
+      try {
+        await this.loadNotebooks();
+      } catch (err) {
+        console.error("[ DECRYPTION FAILED ]", err);
+        alert("Passphrase didn't unlock your data. Try again.");
+        this.passphrase = "";
+        return;
+      }
+      this.isUnlocked = true;
     },
 
     // Load notebooks + their notes
@@ -58,6 +69,11 @@ createApp({
       if (!this.showNewNotebook) this.newNotebook = "";
     },
     async addNotebook() {
+      if (!this.isUnlocked) {
+        alert("Unlock first");
+        return;
+      }
+
       if (!this.newNotebook.trim()) return;
       await window.api.createNotebook(this.newNotebook.trim());
       this.newNotebook = "";
@@ -73,6 +89,11 @@ createApp({
       if (!nb.showNewNote) nb.newNote = "";
     },
     async addNote(nb) {
+      if (!this.isUnlocked) {
+        alert("Unlock first");
+        return;
+      }
+
       if (!nb.newNote.trim()) return;
       const newId = await window.api.createNote(nb.id, nb.newNote.trim());
       //console.log(`Created note ${newId} in notebook ${nb.id}`);
@@ -209,6 +230,5 @@ createApp({
     },
   },
 
-  mounted() {
-  },
+  mounted() {},
 }).mount("#app");
