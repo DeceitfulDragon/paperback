@@ -1,0 +1,68 @@
+{
+  "name": "paperback",
+  "version": "0.1.0",
+  "author": "DeceitfulDragon  <deceitfuldragon0@gmail.com> (https://www.deceitfuldragon.xyz/)",
+  "description": "A notes app using Electron, Vue 3, and Tailwind CSS",
+  "main": "main.js",
+  "scripts": {
+    "start": "concurrently \"npm run dev\" \"npm run watch:css\" \"cross-env NODE_ENV=development electron .\"",
+    "build:css": "npx tailwindcss -i ./renderer/css/styles.css -o ./dist/styles.css --watch",
+    "build": "webpack --mode production",
+    "dev": "webpack --watch",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "watch:css": "tailwindcss -i ./renderer/css/styles.css -o ./dist/styles.css --watch"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.9.1",
+    "sortablejs": "^1.15.6",
+    "vue": "^3.2.0",
+    "vuedraggable": "^4.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.10",
+    "@babel/preset-env": "^7.26.9",
+    "autoprefixer": "^10.4.12",
+    "babel-loader": "^10.0.0",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron": "^35.1.2",
+    "electron-builder": "^24.3.0",
+    "electron-reload": "^2.0.0-alpha.1",
+    "electron-store": "^8.1.0",
+    "postcss": "^8.4.16",
+    "tailwindcss": "^3.2.7",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1"
+  },
+  "build": {
+    "productName": "paperback",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "dist/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "icon": "assets/icon/Icon.png",
+    "win": {
+        "target": "nsis",
+        "icon": "assets/icon/Icon.png"
+    },
+    "mac": {
+        "icon": "assets/icon/Icon.icns"
+    },
+    "linux": {
+        "icon": "assets/icon/Icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}

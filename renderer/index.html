@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>paperback</title>
+  <link rel="stylesheet" href="../dist/styles.css" />
+  <style>
+  </style>
+</head>
+
+<body class="bg-tertiary font-secondary">
+  <div id="app" class="flex h-screen">
+
+    <!-- passphrase modal -->
+    <div v-if="showPassphraseModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div class="bg-tertiary text-primary p-6 rounded shadow-lg w-80">
+        <h3 class="text-xl font-bold mb-4">Enter Passphrase</h3>
+        <input v-model="passphrase" type="password" placeholder="Passphrase"
+          class="w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-accent" />
+        <button @click="unlockApp" class="w-full bg-accent text-white py-2 rounded hover:bg-opacity-80 transition">
+          Unlock
+        </button>
+      </div>
+    </div>
+
+
+    <!-- delete confirmation modal -->
+    <div v-if="showDeleteModal" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay">
+      <div class="bg-tertiary text-primary p-6 rounded shadow-lg w-80">
+        <h3 class="text-xl font-bold mb-4">Delete note?</h3>
+        <p class="mb-6">This action cannot be undone.</p>
+        <div class="flex justify-end space-x-2">
+          <button @click="cancelDelete"
+            class="px-4 py-2 rounded border border-accent text-accent font-bold transition-colors duration-200 hover:bg-accent hover:text-white">
+            Cancel
+          </button>
+          <button @click="confirmDelete"
+            class="px-4 py-2 rounded bg-accent text-white font-bold transition-colors duration-200 hover:bg-opacity-80">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- sidebar -->
+    <div class="w-1/4 bg-secondary text-tertiary p-4 border-r border-primary overflow-y-auto">
+      <!-- notebooks header -->
+      <div class="flex items-center justify-between mb-4 border-b border-hoverColor pb-2">
+        <h2 class="text-3xl font-bold font-primary unselectable">Notebooks</h2>
+        <button @click="toggleNewNotebook"
+          class="text-accent text-3xl transition duration-200 hover:text-white unselectable">+</button>
+      </div>
+
+      <!-- create notebook -->
+      <div v-if="showNewNotebook" class="mb-4">
+        <input v-model="newNotebook" placeholder="New Notebook Name"
+          class="w-full p-2 border border-hoverColor rounded focus:outline-none focus:ring-2 focus:ring-accent text-black" />
+        <button @click="addNotebook"
+          class="w-full mt-2 bg-accent text-white py-2 rounded transition duration-200 hover:bg-opacity-80">
+          Create Notebook
+        </button>
+      </div>
+
+      <!-- notebooks list -->
+      <ul class="list-none">
+        <draggable v-model="notebooks" :handle="'.notebook-handle'" @end="updateNotebooksOrder">
+          <template #item="{ element, index }">
+            <li :key="element.id" class="mb-4 unselectable">
+              <!-- notebook title + toggle New-Note -->
+              <div
+                class="flex items-center justify-between p-2 rounded transition duration-200 hover:bg-hoverColor cursor-pointer"
+                @click="toggleNotebook(index)">
+                <div class="flex items-center notebook-handle">
+                  <span class="mr-2 unselectable">
+                    <span v-if="element.expanded">▼</span>
+                    <span v-else>▶</span>
+                  </span>
+                  <span class="text-xl font-bold unselectable">{{ element.name }}</span>
+                </div>
+                <button @click.stop="toggleNewNote(index)"
+                  :style="{ transform: element.showNewNote ? 'rotate(45deg)' : 'rotate(0deg)' }"
+                  class="transition-transform duration-200 text-accent text-2xl hover:text-white unselectable">+</button>
+              </div>
+
+              <!-- side‑by‑side add-note -->
+              <div v-if="element.showNewNote" class="m-2 flex items-center space-x-2">
+                <input v-model="element.newNote" placeholder="Note Title"
+                  class="flex-grow py-1 px-2 border border-hoverColor rounded focus:outline-none focus:ring-2 focus:ring-accent text-black" />
+                <button @click="addNote(element)"
+                  class="bg-accent text-white px-2 py-1 rounded transition duration-200 hover:bg-opacity-80">
+                  Add Note
+                </button>
+              </div>
+
+              <!-- draggable Notes -->
+              <ul v-if="element.expanded" class="notes-container pl-6 list-disc" :data-notebook="element.id">
+                <draggable v-model="element.notes" :handle="'.note-handle'" @end="updateNotesOrder(element)"
+                  @add="onNotesAdd($event, element)" @remove="onNotesRemove($event, element)"
+                  :group="{ name: 'notes', pull: true, put: ['notes'] }" :clone="cloneNote">
+                  <template #item="{ element: note }">
+                    <li :key="note.id"
+                      class="p-2 pl-4 rounded transition duration-200 hover:bg-hoverColor cursor-pointer"
+                      :data-note-id="note.id"
+                      :class="{ 'bg-hoverColor': selectedNote && selectedNote.id === note.id && selectedNotebook && selectedNotebook.id === element.id }"
+                      @click="selectNote(element, note)">
+                      {{ note.title }}
+                    </li>
+                  </template>
+                </draggable>
+              </ul>
+            </li>
+          </template>
+        </draggable>
+      </ul>
+    </div>
+
+    <!-- main editing area -->
+    <div class="flex-1 p-4 bg-tertiary text-primary flex flex-col">
+      <div v-if="selectedNote" class="flex-1 flex flex-col">
+        <h2 class="text-3xl font-bold font-primary mb-4">
+          {{ selectedNote.title }}
+        </h2>
+        <textarea v-model="text"
+          class="flex-1 w-full p-4 border rounded resize-none focus:outline-none focus:ring-2 focus:ring-accent font-mono"
+          placeholder="Start typing your note..."></textarea>
+
+        <!-- metadata + delete button -->
+        <div class="flex items-center justify-between mt-4 text-sm font-mono">
+          <div>
+            <span>Created at: {{ createdAt }}</span>
+            <span class="mx-2">|</span>
+            <span>Last Edited: {{ lastEdited }}</span>
+          </div>
+          <button @click="openDeleteModal()" class="transition-colors duration-200 hover:text-accent">
+            <svg class="w-6 h-6 fill-current inline-block" viewBox="0 0 24 24">
+              <path d="M3 6h18v2H3V6zm2 3h14l-1.5 12h-11L5 9zm7-5a1 1 0 0 1 1 1v1H9V5a1 1 0 0 1 1-1h3z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div v-else class="flex items-center justify-center h-full">
+        <p class="text-2xl">Select a note to edit.</p>
+      </div>
+    </div>
+
+    <!-- end app -->
+
+    <script src="../dist/bundle.js"></script>
+</body>
+
+</html>
