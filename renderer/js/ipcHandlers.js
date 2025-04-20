@@ -52,12 +52,20 @@ ipcMain.handle("load-note", (_event, noteId) => {
 
 // Save/update note
 ipcMain.on("save-note", (_event, noteId, content, lastEdited) => {
-  db.updateNote(noteId, content, lastEdited);
+  try {
+    db.updateNote(noteId, content, lastEdited);
+  } catch (err) {
+    console.error("save-note error", err);
+  }
 });
 
 // Delete note
 ipcMain.on("delete-note", (_event, noteId) => {
-  db.deleteNote(noteId);
+  try {
+    db.deleteNote(noteId);
+  } catch (err) {
+    console.error("delete-note error", err);
+  }
 });
 
 // Update order of notes within notebook

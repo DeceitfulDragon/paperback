@@ -107,23 +107,18 @@ createApp({
       this.selectedNotebook = nb;
       this.selectedNote = note;
       const result = await window.api.loadNote(note.id);
-      //console.log("Loaded note data:", result);
 
       let noteData = { text: "", created_at: "", last_edited: "" };
-      if (typeof result === "string") {
-        try {
-          noteData = JSON.parse(result);
-        } catch (e) {
-          console.error("Error parsing note data:", e);
-        }
-      } else {
-        noteData = result;
+      try {
+        noteData = JSON.parse(result.content);
+      } catch (e) {
+        console.error("Error parsing note data:", e);
       }
 
-      this.text = noteData.text || "";
+      this.text = noteData.text;
       this.originalText = this.text;
-      this.createdAt = noteData.created_at || "";
-      this.lastEdited = noteData.last_edited || "";
+      this.createdAt = noteData.created_at || result.created_at;
+      this.lastEdited = noteData.last_edited || result.last_edited;
       this.loadingNote = false;
     },
 
@@ -132,14 +127,14 @@ createApp({
       if (!this.createdAt) this.createdAt = new Date().toLocaleString();
       this.lastEdited = new Date().toLocaleString();
 
-      const payload = JSON.stringify({
+      const noteData = JSON.stringify({
         text: this.text,
         created_at: this.createdAt,
         last_edited: this.lastEdited,
       });
 
-      //console.log(`Saving note ${this.selectedNote.id}:`, payload);
-      window.api.saveNote(this.selectedNote.id, payload, this.lastEdited);
+      //console.log(`Saving note ${this.selectedNote.id}:`, noteData);
+      window.api.saveNote(this.selectedNote.id, noteData, this.lastEdited);
     },
 
     async updateNotebooksOrder() {
